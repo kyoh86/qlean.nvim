@@ -7,7 +7,7 @@ buffers that are not part of the user's work when you run `:q`/`:quit`.
 
 ## What it does
 
-- When you run `:q`
+- When you run `:q` (and only one keep window remains)
   - It removes leftover auxiliary UI windows (file tree/help/quickfix, etc.)
   - It closes windows that display non-kept buffers
 - If there is any modified buffer considered part of the user's work, it does nothing

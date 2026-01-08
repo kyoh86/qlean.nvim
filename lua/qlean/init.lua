@@ -77,7 +77,7 @@ local function keep_predicate(bufnr, ctx)
   return result and true or false
 end
 
-local function gate_modified_keep(ctx_of)
+local function has_modified_keep(ctx_of)
   if not state.config.skip_if_modified_keep then
     return false
   end
@@ -92,6 +92,29 @@ local function gate_modified_keep(ctx_of)
   end
 
   return false
+end
+
+local function count_keep_windows(ctx_of)
+  local current = vim.api.nvim_get_current_win()
+  local current_is_keep = false
+  local keep_count = 0
+
+  for _, win in ipairs(vim.api.nvim_list_wins()) do
+    if vim.api.nvim_win_is_valid(win) then
+      local buf = vim.api.nvim_win_get_buf(win)
+      if vim.api.nvim_buf_is_valid(buf) then
+        local ctx = ctx_of(buf)
+        if keep_predicate(buf, ctx) then
+          keep_count = keep_count + 1
+          if win == current then
+            current_is_keep = true
+          end
+        end
+      end
+    end
+  end
+
+  return keep_count, current_is_keep
 end
 
 local function close_non_keep_windows(ctx_of)
@@ -113,11 +136,14 @@ end
 local function on_quit_pre()
   local ctx_of = ctx_cache()
 
-  if gate_modified_keep(ctx_of) then
+  if has_modified_keep(ctx_of) then
     return
   end
 
-  close_non_keep_windows(ctx_of)
+  local keep_count, current_is_keep = count_keep_windows(ctx_of)
+  if keep_count == 1 and current_is_keep then
+    close_non_keep_windows(ctx_of)
+  end
 end
 
 function M.setup(opts)

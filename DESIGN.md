@@ -158,6 +158,7 @@ ctx = {
    - If any modified keep buffer exists, return
 4. Extract close targets
 
+   - Only clean up when there is exactly one keep window
    - All windows except the current one
    - Windows showing buffers with `keep == false`
 5. Run `:close` on each (do not use `!`)
