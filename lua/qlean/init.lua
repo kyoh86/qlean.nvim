@@ -78,10 +78,10 @@ local function keep_predicate(bufnr, ctx)
   return result and true or false
 end
 
-local function get_keep_window_state(ctx_of)
+local function collect_cleanup_wins(ctx_of)
   local current = vim.api.nvim_get_current_win()
-  local current_is_keep = false
   local keep_count = 0
+  local cleanup_wins = {}
 
   for _, win in ipairs(vim.api.nvim_list_wins()) do
     if vim.api.nvim_win_is_valid(win) then
@@ -90,32 +90,29 @@ local function get_keep_window_state(ctx_of)
         local ctx = ctx_of(buf)
         if keep_predicate(buf, ctx) then
           keep_count = keep_count + 1
-          if win == current then
-            current_is_keep = true
-          end
           if keep_count >= 2 then
-            return keep_count, current_is_keep
+            return {}
           end
+        else
+          if win == current then
+            return {}
+          end
+          table.insert(cleanup_wins, win)
         end
       end
     end
   end
 
-  return keep_count, current_is_keep
+  if keep_count == 1 then
+    return cleanup_wins
+  end
+  return {}
 end
 
-local function close_non_keep_windows(ctx_of)
-  local current = vim.api.nvim_get_current_win()
-
-  for _, win in ipairs(vim.api.nvim_list_wins()) do
-    if win ~= current and vim.api.nvim_win_is_valid(win) then
-      local buf = vim.api.nvim_win_get_buf(win)
-      if vim.api.nvim_buf_is_valid(buf) then
-        local ctx = ctx_of(buf)
-        if not keep_predicate(buf, ctx) then
-          pcall(vim.api.nvim_win_close, win, false)
-        end
-      end
+local function close_windows(wins)
+  for _, win in ipairs(wins) do
+    if vim.api.nvim_win_is_valid(win) then
+      pcall(vim.api.nvim_win_close, win, false)
     end
   end
 end
@@ -123,9 +120,9 @@ end
 local function on_quit_pre()
   local ctx_of = ctx_cache()
 
-  local keep_count, current_is_keep = get_keep_window_state(ctx_of)
-  if keep_count == 1 and current_is_keep then
-    close_non_keep_windows(ctx_of)
+  local wins = collect_cleanup_wins(ctx_of)
+  if #wins > 0 then
+    close_windows(wins)
   end
 end
 
