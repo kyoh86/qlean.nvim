@@ -7,7 +7,7 @@ Neovim用プラグインです。
 
 ## 何をしてくれるか
 
-- `:q`時、keep対象のウィンドウが1つだけなら
+- `:q`時、keep対象のウィンドウが1つだけで現在ウィンドウもkeepなら
   - 非keepウィンドウ（help/quickfix/tree等）をまとめてcloseします
 - modifiedバッファがある場合でも掃除は行います
   - `:q`の成否はNeovim本体の挙動に任せます
@@ -52,10 +52,10 @@ require("qlean").setup({
 
 `keep`は「quit時に残しておきたいバッファかどうか」を判定する関数です。
 
-- `keep(buf) == true`
+- `keep(bufnr, ctx) == true`
 
   - keep対象と見なされ、自動closeされません
-- `keep(buf) == false`
+- `keep(bufnr, ctx) == false`
 
   - keep対象外として、そのバッファを表示しているウィンドウがclose対象になります
 

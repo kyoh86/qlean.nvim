@@ -2,7 +2,7 @@
 
 ## Goals
 
-- When `:q`/`:quit` runs and only one keep window remains, clean up non-keep windows
+- When `:q`/`:quit` runs and only one keep window remains, and the current window is keep, clean up non-keep windows
 - Cleanup runs even when buffers are modified; whether `:q` succeeds is left to Neovim
 - Never override Neovim's native behavior
   - Error messages on failure (E37, etc.)
@@ -15,15 +15,15 @@ This plugin does not try to "quit smarter." It focuses on:
 
 ### keep predicate (single classification axis)
 
-Each buffer is classified by `keep(buf) -> boolean`.
+Each buffer is classified by `keep(bufnr, ctx) -> boolean`.
 
 - `keep == true`
 
-  - Treated as in-progress at quit time
+  - Treated as keep at quit time
   - Not auto-closed
 - `keep == false`
 
-  - Treated as completed/UI-only
+  - Treated as non-keep at quit time
   - OK to close before quit
 
 This is not about "editable or not," but about:

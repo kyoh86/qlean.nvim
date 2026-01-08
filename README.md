@@ -7,7 +7,7 @@ problem when you close your last keep window.
 
 ## What it does
 
-- On `:q`, if only one keep window remains
+- On `:q`, if only one keep window remains and the current window is keep
   - It closes non-keep windows (help/quickfix/tree, etc.)
 - It still performs cleanup even if buffers are modified
   - Whether `:q` succeeds is left to Neovim
@@ -52,10 +52,10 @@ require("qlean").setup({
 
 `keep` is a function that decides whether a buffer should be kept at quit time.
 
-- `keep(buf) == true`
+- `keep(bufnr, ctx) == true`
 
   - Treated as a keep buffer and not auto-closed
-- `keep(buf) == false`
+- `keep(bufnr, ctx) == false`
 
   - Not a keep buffer, so the window showing that buffer is closed
 
