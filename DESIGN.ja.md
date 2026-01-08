@@ -2,29 +2,26 @@
 
 ## プラグインの目的
 
-- `:q`/`:quit`実行時、keep対象のウィンドウが1つだけで現在ウィンドウもkeepなら作業対象外のウィンドウを掃除する
+- `:q`/`:quit`実行時、keep対象のウィンドウが1つだけで現在ウィンドウもkeep対象ならkeep対象外のウィンドウを掃除する
 - modifiedバッファがあっても掃除は行い、`:q`の成否はNeovim本体に任せる
-- Neovim本体の
-  - 失敗時のエラーメッセージ（E37等）を一切上書きしない
+- Neovim本体の失敗時のエラーメッセージ（E37等）を一切上書きしない
 
 このプラグインは「終了を賢くする」のではなく、
 
-> 最後のkeepウィンドウを閉じるときだけ、作業対象外のウィンドウを片付ける
+> 最後のkeep対象ウィンドウを閉じるときだけ、keep対象外のウィンドウを片付ける
 
 ことに専念する。
 
 ## 基本設計
 
-### keep判定（唯一の分類軸）
+### keep判定
 
-各バッファは、`keep(bufnr, ctx) -> boolean`によって判定される。
+各バッファは、`keep(ctx) -> boolean`によって判定される。
 
 - `keep == true`
-
   - quit時点でkeep対象と見なす
   - 自動closeの対象にしない
 - `keep == false`
-
   - keep対象外/UI付随と見なす
   - quit前にcloseしてよい
 
@@ -36,9 +33,10 @@
 
 #### なぜkeepなのか
 
-- terminal/acwrite/promptなど
-  - 編集ではないが
-  - 残っていたらkeep対象とみなしたいものが多い
+terminal/acwrite/promptなど
+
+- 編集ではないが
+- 残っていたらkeep対象とみなしたいものが多い
 
 ## 安全性ポリシー
 
@@ -58,7 +56,7 @@
 ### Predicateの仕様
 
 ```lua
-Predicate = function(bufnr: integer, ctx: Context): boolean
+Predicate = function(ctx: Context): boolean
 ```
 
 - `true`を返したバッファはkeep
@@ -98,19 +96,16 @@ rule.bvar(key, value?)
 
 - 8割のケースはこれで足りる
 - 足りなければユーザーがpredicateを自作する
+  - bufnrが渡れば、NeovimAPIでほぼ全情報が取得できる
+  - プラグイン側で全ユースケースを吸収しようとしない
 
 ### ユーザー定義predicate
 
 ```lua
-local my_keep = function(bufnr, ctx)
+local my_keep = function(ctx)
   return ctx.bo.buftype == "" and ctx.bufname:match("/work/") ~= nil
 end
 ```
-
-#### なぜ許可するか
-
-- bufnrが渡れば、NeovimAPIでほぼ全情報が取得できる
-- プラグイン側で全ユースケースを吸収しようとしない
 
 ## Context（ctx）設計
 
@@ -132,7 +127,9 @@ ctx = {
     readonly = boolean,
     modified = boolean,
   },
-  bufname = bufname,
+  bufname = string,
+  bufnr = integer,
+  winId = integer,
 }
 ```
 
@@ -146,7 +143,6 @@ ctx = {
 1. QuitPre発火
 2. ctxキャッシュ生成
 3. close対象抽出
-
    - keepウィンドウが1つだけの場合のみ掃除する
    - 現在ウィンドウ以外
    - `keep == false`のバッファを表示しているウィンドウ
@@ -206,7 +202,6 @@ keep = rule.all(
 
 - `:q!`/`:qa!`相当の強制終了は行わない
 - modifiedバッファの保存・破棄を自動化しない
-- win属性（float等）ベースの掃除は行わない
 
 ## 設計まとめ
 

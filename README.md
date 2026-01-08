@@ -7,8 +7,9 @@ problem when you close your last keep-designated window.
 
 ## What it does
 
-- On `:q`, if only one keep-designated window remains and the current window is keep-designated
-  - It closes non-keep windows (help/quickfix/tree, etc.)
+- On `:q`, if only one keep-designated window remains and the current window is
+  keep-designated
+  - It closes non-keep-designated windows (help/quickfix/tree, etc.)
 - It still performs cleanup even if buffers are modified
   - Whether `:q` succeeds is left to Neovim
 
@@ -28,8 +29,7 @@ problem when you close your last keep-designated window.
 
 ## Basic usage
 
-No extra commands are needed.
-`qlean` hooks into `QuitPre`.
+No extra commands are needed. `qlean` hooks into `QuitPre`.
 
 ## Configuration
 
@@ -40,28 +40,25 @@ If you don't set anything, `buftype == ''` is treated as keep.
 ```lua
 local rule = require("qlean.rule")
 
-require("qlean").setup({
-  keep = rule.buftype(""), -- default
-})
+require("qlean").setup({})
 ```
 
-- Normal files (`buftype == ''`) are treated as keep buffers
-- Windows showing other buffers (help/quickfix/tree, etc.) are closed before quit
+- Normal files (`buftype == ''`) are treated as keep-designated buffers
+- Windows showing other buffers (help/quickfix/tree, etc.) are closed before
+  quit
 
 ## What is `keep`
 
 `keep` is a function that decides whether a buffer should be kept at quit time.
 
-- `keep(bufnr, ctx) == true`
-
-  - Treated as a keep buffer and not auto-closed
-- `keep(bufnr, ctx) == false`
-
-  - Not a keep buffer, so the window showing that buffer is closed
+- `keep(ctx) == true`
+  - Treated as a keep-designated buffer and not auto-closed
+- `keep(ctx) == false`
+  - Not a keep-designated buffer, so the window showing that buffer is closed
 
 ## Common examples
 
-### Treat terminal buffers as keep buffers
+### Treat terminal buffers as keep-designated buffers
 
 ```lua
 keep = rule.any(
@@ -70,7 +67,7 @@ keep = rule.any(
 )
 ```
 
-### Include gitcommit/gitrebase as keep buffers
+### Include gitcommit/gitrebase as keep-designated buffers
 
 ```lua
 keep = rule.any(
@@ -91,8 +88,9 @@ keep = rule.all(
 ### Write your own predicate
 
 ```lua
-keep = function(bufnr, ctx)
-  -- ctx includes buftype / filetype / bufname, etc.
+keep = function(ctx)
+  -- ctx includes bufnr / buftype / filetype / bufname, etc.
+  -- See the lua/qlean/type.lua for details.
   return ctx.bo.buftype == "" and ctx.bufname:match("/keep/") ~= nil
 end
 ```

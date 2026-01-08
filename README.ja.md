@@ -7,8 +7,8 @@ Neovim用プラグインです。
 
 ## 何をしてくれるか
 
-- `:q`時、keep対象のウィンドウが1つだけで現在ウィンドウもkeepなら
-  - 非keepウィンドウ（help/quickfix/tree等）をまとめてcloseします
+- `:q`時、keep対象のウィンドウが1つだけで現在ウィンドウもkeep対象なら
+  - 非keep対象ウィンドウ（help/quickfix/tree等）をまとめてcloseします
 - modifiedバッファがある場合でも掃除は行います
   - `:q`の成否はNeovim本体の挙動に任せます
 
@@ -28,21 +28,18 @@ Neovim用プラグインです。
 
 ## 基本的な使い方
 
-特に操作は増えません。
-`qlean`は`QuitPre`にフックして動作します。
+特に操作は増えません。 `qlean`は`QuitPre`にフックして動作します。
 
 ## 設定
 
 ### 最小設定（おすすめ）
 
-何も設定しない場合、`buftype == ''`をkeepとして扱います。
+何も設定しない場合、`buftype == ''`をkeep対象として扱います。
 
 ```lua
 local rule = require("qlean.rule")
 
-require("qlean").setup({
-  keep = rule.buftype(""), -- default
-})
+require("qlean").setup({})
 ```
 
 - 通常ファイル（`buftype == ''`）をkeep対象として扱います
@@ -52,11 +49,9 @@ require("qlean").setup({
 
 `keep`は「quit時に残しておきたいバッファかどうか」を判定する関数です。
 
-- `keep(bufnr, ctx) == true`
-
+- `keep(ctx) == true`
   - keep対象と見なされ、自動closeされません
-- `keep(bufnr, ctx) == false`
-
+- `keep(ctx) == false`
   - keep対象外として、そのバッファを表示しているウィンドウがclose対象になります
 
 ## 代表的な設定例
@@ -79,7 +74,7 @@ keep = rule.any(
 )
 ```
 
-### ファイルツリー（neo-treeなど）を確実にcloseする
+### ファイルツリー（neo-treeなど）をcloseする
 
 ```lua
 keep = rule.all(
@@ -91,8 +86,9 @@ keep = rule.all(
 ### 自分で判定関数を書く
 
 ```lua
-keep = function(bufnr, ctx)
-  -- ctx には buftype / filetype / bufname などが含まれます
+keep = function(ctx)
+  -- ctx には bufnr / buftype / filetype / bufname などが含まれます
+  -- 詳細なctxの中身はlua/qlean/type.luaを参照してください
   return ctx.bo.buftype == "" and ctx.bufname:match("/work/") ~= nil
 end
 ```

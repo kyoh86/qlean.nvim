@@ -2,27 +2,27 @@
 
 ## Goals
 
-- When `:q`/`:quit` runs and only one keep-designated window remains, and the current window is keep-designated, clean up non-keep windows
-- Cleanup runs even when buffers are modified; whether `:q` succeeds is left to Neovim
-- Never override Neovim's native behavior
-  - Error messages on failure (E37, etc.)
+- When `:q`/`:quit` runs and only one keep-designated window remains, and the
+  current window is keep-designated, clean up non-keep-designated windows
+- Cleanup runs even when buffers are modified; whether `:q` succeeds is left to
+  Neovim
+- Never override Neovim's native behavior such as error messages on failure (E37, etc.)
 
 This plugin does not try to "quit smarter." It focuses on:
 
-> Only when closing the last keep-designated window, clean up non-keep windows.
+> Only when closing the last keep-designated window, clean up
+> non-keep-designated windows.
 
 ## Core design
 
-### keep predicate (single classification axis)
+### keep predicate
 
-Each buffer is classified by `keep(bufnr, ctx) -> boolean`.
+Each buffer is classified by `keep(ctx) -> boolean`.
 
 - `keep == true`
-
   - Treated as keep at quit time
   - Not auto-closed
 - `keep == false`
-
   - Treated as non-keep at quit time
   - OK to close before quit
 
@@ -32,9 +32,10 @@ This is not about "editable or not," but about:
 
 #### Why `keep`
 
-- terminal/acwrite/prompt, etc.
-  - Not edits
-  - Often still part of what should be kept
+terminal/acwrite/prompt, etc.
+
+- Not edits
+- Often still part of what should be kept
 
 ## Safety policy
 
@@ -54,7 +55,7 @@ This is not about "editable or not," but about:
 ### Predicate signature
 
 ```lua
-Predicate = function(bufnr: integer, ctx: Context): boolean
+Predicate = function(ctx: Context): boolean
 ```
 
 - `true` means keep
@@ -94,19 +95,16 @@ rule.bvar(key, value?)
 
 - Covers most cases
 - Users can write custom predicates if needed
+  - With `bufnr`, the Neovim API provides almost anything
+  - The plugin should not absorb every use case
 
 ### User-defined predicate
 
 ```lua
-local my_keep = function(bufnr, ctx)
+local my_keep = function(ctx)
   return ctx.bo.buftype == "" and ctx.bufname:match("/keep/") ~= nil
 end
 ```
-
-#### Why allow it
-
-- With `bufnr`, the Neovim API provides almost anything
-- The plugin should not absorb every use case
 
 ## Context (ctx) design
 
@@ -128,7 +126,9 @@ ctx = {
     readonly = boolean,
     modified = boolean,
   },
-  bufname = bufname,
+  bufname = string,
+  bufnr = integer,
+  winId = integer,
 }
 ```
 
@@ -142,7 +142,6 @@ ctx = {
 1. QuitPre fires
 2. Build ctx cache
 3. Extract close targets
-
    - Only clean up when there is exactly one keep-designated window
    - All windows except the current one
    - Windows showing buffers with `keep == false`
@@ -202,11 +201,9 @@ keep = rule.all(
 
 - No force-quit like `:q!`/`:qa!`
 - Do not automate saving/discarding modified buffers
-- No window-attribute-based cleanup (float, etc.)
 
 ## Summary
 
 - The only axis is `keep` (keep or non-keep)
-- Cleanup runs only when one keep-designated window remains
 - `rule` is a minimal predicate+combinator toolkit
 - Preserve Neovim's native failure UX

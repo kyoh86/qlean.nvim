@@ -1,29 +1,10 @@
 local M = {}
 
-local rule = require("qlean.rule")
-
----@class qlean.ContextBo
----@field buftype string
----@field filetype string
----@field buflisted boolean
----@field bufhidden string
----@field modifiable boolean
----@field readonly boolean
----@field modified boolean
-
----@class qlean.Context
----@field bo qlean.ContextBo
----@field bufname string
-
----@alias qlean.Predicate fun(bufnr: integer, ctx: qlean.Context): boolean
-
----@class qlean.Config
----@field keep? qlean.Predicate|nil
----@field debug? boolean
-
 ---@type qlean.Config
 local default_config = {
-  keep = rule.buftype(""),
+  keep = function(ctx)
+    return (ctx.bo.buftype or "") == ""
+  end,
   debug = false,
 }
 
@@ -49,6 +30,7 @@ local function get_buf_option(bufnr, name, fallback)
   return fallback
 end
 
+---@return qlean.Context
 local function build_ctx(bufnr)
   local bufname_ok, bufname = pcall(vim.api.nvim_buf_get_name, bufnr)
   if not bufname_ok then
@@ -66,9 +48,11 @@ local function build_ctx(bufnr)
       modified = get_buf_option(bufnr, "modified", false),
     },
     bufname = bufname,
+    bufnr = bufnr,
   }
 end
 
+---@return qlean.ContextStore
 local function ctx_cache()
   local cache = {}
   return function(bufnr)
@@ -83,13 +67,13 @@ local function ctx_cache()
   end
 end
 
-local function keep_predicate(bufnr, ctx)
+local function keep_predicate(ctx)
   local keep = state.config.keep
   if not keep then
     return true
   end
 
-  local ok, result = pcall(keep, bufnr, ctx)
+  local ok, result = pcall(keep, ctx)
   if not ok then
     notify("qlean: keep predicate error: " .. tostring(result))
     return true
@@ -105,72 +89,71 @@ local ACTION = {
   ignore = "ignore",
 }
 
-local function classify_win(win, current, ctx_of)
-  if not vim.api.nvim_win_is_valid(win) then
+---@param winId integer
+---@param curWinId integer
+---@param ctx_of qlean.ContextStore
+---@return "abort"|"cleanup"|"keep"|"ignore"
+local function classify_win(winId, curWinId, ctx_of)
+  if not vim.api.nvim_win_is_valid(winId) then
     return ACTION.ignore
   end
 
-  local buf = vim.api.nvim_win_get_buf(win)
+  local buf = vim.api.nvim_win_get_buf(winId)
   if not vim.api.nvim_buf_is_valid(buf) then
     return ACTION.ignore
   end
 
-  local ctx = ctx_of(buf)
-  if keep_predicate(buf, ctx) then
+  local ctx = ctx_of(winId, buf)
+  if keep_predicate(ctx) then
     return ACTION.keep
   end
 
   -- If the current window is non-keep, abort cleanup.
-  if win == current then
+  if winId == curWinId then
     return ACTION.abort
   end
 
   return ACTION.cleanup
 end
 
+---@param ctx_of qlean.ContextStore
+---@return integer[] Window-IDs to cleanup
 local function collect_cleanup_wins(ctx_of)
   local current = vim.api.nvim_get_current_win()
-  local keep_count = 0
-  local cleanup_wins = {}
+  local exist = false
+  local winIds = {}
 
-  for _, win in ipairs(vim.api.nvim_list_wins()) do
-    local action = classify_win(win, current, ctx_of)
+  for _, winId in ipairs(vim.api.nvim_list_wins()) do
+    local action = classify_win(winId, current, ctx_of)
     if action == ACTION.keep then
-      keep_count = keep_count + 1
-      if keep_count >= 2 then
-        -- Cleanup happens only when there is exactly one keep window.
+      if exist then
+        -- Cleanup happens only when there is exactly one keep-designated window.
+        -- So if the another one is exist, don't close any window.
         return {}
       end
+      exist = true
     elseif action == ACTION.abort then
       -- If the current window is non-keep, abort cleanup.
       return {}
     elseif action == ACTION.cleanup then
       -- Non-keep, non-current candidates for cleanup.
-      table.insert(cleanup_wins, win)
+      table.insert(winIds, winId)
     end
   end
-
-  if keep_count == 1 then
-    return cleanup_wins
-  end
-  return {}
+  return winIds
 end
 
-local function close_windows(wins)
-  for _, win in ipairs(wins) do
-    if vim.api.nvim_win_is_valid(win) then
-      pcall(vim.api.nvim_win_close, win, false)
+--- @param winIds integer[]
+local function close_windows(winIds)
+  for _, winId in ipairs(winIds) do
+    if vim.api.nvim_win_is_valid(winId) then
+      pcall(vim.api.nvim_win_close, winId, false)
     end
   end
 end
 
 local function on_quit_pre()
-  local ctx_of = ctx_cache()
-
-  local wins = collect_cleanup_wins(ctx_of)
-  if #wins > 0 then
-    close_windows(wins)
-  end
+  close_windows(collect_cleanup_wins(ctx_cache()))
 end
 
 ---@param opts qlean.Config|nil
