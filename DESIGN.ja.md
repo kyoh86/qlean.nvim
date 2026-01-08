@@ -212,4 +212,4 @@ keep = rule.all(
 
 - 判定軸はkeep（keep対象かどうか）のみ
 - ruleはpredicate+combinatorの最小構成
-- Vim/Neovim本体の失敗UXを最優先で尊重する
+- Neovim本体の失敗UXを最優先で尊重する
