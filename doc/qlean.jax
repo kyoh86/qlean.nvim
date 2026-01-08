@@ -1,0 +1,154 @@
+*qlean.txt* 最後の作業ウィンドウを閉じるときに補助UIだけ残る問題を防ぐ
+
+==============================================================================
+目次                                                        *qlean-contents*
+
+- はじめに                                          |qlean-introduction|
+- インストール                                           |qlean-install|
+- 使い方                                                   |qlean-usage|
+- 設定                                             |qlean-configuration|
+  - qlean.setup()                                            |qlean.setup()|
+  - keep判定関数                                                |qlean-keep|
+- ruleモジュール                                              |qlean-rule|
+- 例                                                     |qlean-examples|
+- 注意点                                                   |qlean-notes|
+- LICENSE                                                 |qlean-license|
+
+==============================================================================
+はじめに                                            *qlean-introduction*
+
+qleanは「最後の作業ウィンドウを閉じるときに補助UIだけが残る」問題を解消する
+Neovim用プラグインです。
+
+keep対象のウィンドウが1つだけで、現在ウィンドウもkeep対象のときにだけ
+掃除を実行します。
+
+==============================================================================
+インストール                                             *qlean-install*
+
+lazy.nvim: >
+    {
+      "kyoh86/qlean.nvim",
+    }
+<
+
+==============================================================================
+使い方                                                     *qlean-usage*
+
+特別なコマンドは不要です。qleanは |QuitPre| にフックして動作します。
+
+==============================================================================
+設定                                                 *qlean-configuration*
+
+qlean.setup({opts})                                          *qlean.setup()*
+    qleanの初期化を行います。
+
+    opts.keep (qlean.Predicate|nil)
+        quit時に残すかどうかを判定する関数です。
+        デフォルト: `buftype == ""`
+
+    opts.debug (boolean)
+        trueのとき、keep判定関数のエラーを通知します。
+        デフォルト: false
+
+keep判定関数                                                    *qlean-keep*
+    keep(ctx) は、残すべきバッファのときに true を返します。
+
+    ctxのフィールド:
+        ctx.bo.buftype (string)
+        ctx.bo.filetype (string)
+        ctx.bo.buflisted (boolean)
+        ctx.bo.bufhidden (string)
+        ctx.bo.modifiable (boolean)
+        ctx.bo.readonly (boolean)
+        ctx.bo.modified (boolean)
+        ctx.bufname (string)
+        ctx.bufnr (integer)
+        ctx.winId (integer)
+
+==============================================================================
+ruleモジュール                                                *qlean-rule*
+
+`qlean.rule` はkeep判定関数を合成するためのヘルパです。 >
+    local rule = require("qlean.rule")
+<
+
+qlean.rule.all(p1, p2, ...)                               *qlean.rule.all()*
+    すべての判定がtrueのときにtrueになります。
+
+qlean.rule.any(p1, p2, ...)                               *qlean.rule.any()*
+    いずれかの判定がtrueのときにtrueになります。
+
+qlean.rule.not(p)                                          *qlean.rule.not()*
+    判定を反転します。
+
+qlean.rule.buftype(x)                                   *qlean.rule.buftype()*
+    |'buftype'| を string または string[] で判定します。
+
+qlean.rule.filetype(x)                                 *qlean.rule.filetype()*
+    |'filetype'| を string または string[] で判定します。
+
+qlean.rule.bufname(pattern)                             *qlean.rule.bufname()*
+    bufnameをLuaパターンで判定します。
+
+qlean.rule.buflisted()                                 *qlean.rule.buflisted()*
+    |'buflisted'| がtrueのときにtrueになります。
+
+qlean.rule.bufhidden(x)                               *qlean.rule.bufhidden()*
+    |'bufhidden'| を string または string[] で判定します。
+
+qlean.rule.modified()                                  *qlean.rule.modified()*
+    バッファが変更済みならtrueになります。
+
+qlean.rule.modifiable()                              *qlean.rule.modifiable()*
+    バッファが変更可能ならtrueになります。
+
+qlean.rule.bvar(key, value?)                               *qlean.rule.bvar()*
+    value省略時はバッファ変数の存在を判定します。
+    value指定時はその値と一致するか判定します。
+
+==============================================================================
+例                                                       *qlean-examples*
+
+terminalもkeep対象として扱う: >
+    keep = rule.any(
+      rule.buftype(""),
+      rule.buftype("terminal")
+    )
+<
+
+gitcommit/gitrebaseをkeep対象に含める: >
+    keep = rule.any(
+      rule.buftype(""),
+      rule.filetype({ "gitcommit", "gitrebase" })
+    )
+<
+
+ファイルツリー（neo-treeなど）をcloseする: >
+    keep = rule.all(
+      rule.buftype(""),
+      rule.not(rule.bufname("^neo%-tree://"))
+    )
+<
+
+自分で判定関数を書く: >
+    keep = function(ctx)
+      return ctx.bo.buftype == "" and ctx.bufname:match("/keep/") ~= nil
+    end
+<
+
+==============================================================================
+注意点                                                     *qlean-notes*
+
+- :q! / :qa! には関与しません。
+- バッファの保存・破棄は自動化しません。
+- keep判定関数がエラーになった場合、そのウィンドウの掃除は行いません。
+
+==============================================================================
+LICENSE                                                     *qlean-license*
+
+MIT License.
+
+Also see http://www.opensource.org/licenses/MIT for more information.
+
+vim:textwidth=78:tabstop=4:shiftwidth=4:expandtab:filetype=help:norl:

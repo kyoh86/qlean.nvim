@@ -1,0 +1,154 @@
+*qlean.txt* Prevent auxiliary UI windows from remaining on :q
+
+==============================================================================
+CONTENTS                                                     *qlean-contents*
+
+- Introduction                                         |qlean-introduction|
+- Install                                                   |qlean-install|
+- Usage                                                       |qlean-usage|
+- Configuration                                     |qlean-configuration|
+  - qlean.setup()                                            |qlean.setup()|
+  - keep predicate                                               |qlean-keep|
+- rule module                                                 |qlean-rule|
+- Examples                                                 |qlean-examples|
+- Notes                                                       |qlean-notes|
+- License                                                   |qlean-license|
+
+==============================================================================
+INTRODUCTION                                           *qlean-introduction*
+
+qlean prevents the "only auxiliary UI windows remain" problem when you close
+your last keep-designated window.
+
+Cleanup runs only when there is exactly one keep-designated window and the
+current window is keep-designated.
+
+==============================================================================
+INSTALL                                                     *qlean-install*
+
+lazy.nvim: >
+    {
+      "kyoh86/qlean.nvim",
+    }
+<
+
+==============================================================================
+USAGE                                                         *qlean-usage*
+
+No extra commands are needed. qlean hooks into |QuitPre|.
+
+==============================================================================
+CONFIGURATION                                         *qlean-configuration*
+
+qlean.setup({opts})                                          *qlean.setup()*
+    Setup qlean.
+
+    opts.keep (qlean.Predicate|nil)
+        Predicate that decides whether a buffer should be kept at quit time.
+        Default: `buftype == ""`
+
+    opts.debug (boolean)
+        When true, notify if the keep predicate fails.
+        Default: false
+
+keep predicate                                                  *qlean-keep*
+    keep(ctx) returns true when the buffer should be kept.
+
+    ctx fields:
+        ctx.bo.buftype (string)
+        ctx.bo.filetype (string)
+        ctx.bo.buflisted (boolean)
+        ctx.bo.bufhidden (string)
+        ctx.bo.modifiable (boolean)
+        ctx.bo.readonly (boolean)
+        ctx.bo.modified (boolean)
+        ctx.bufname (string)
+        ctx.bufnr (integer)
+        ctx.winId (integer)
+
+==============================================================================
+rule module                                                   *qlean-rule*
+
+`qlean.rule` provides helpers to build keep predicates. >
+    local rule = require("qlean.rule")
+<
+
+qlean.rule.all(p1, p2, ...)                               *qlean.rule.all()*
+    True when all predicates are true.
+
+qlean.rule.any(p1, p2, ...)                               *qlean.rule.any()*
+    True when any predicate is true.
+
+qlean.rule.not(p)                                          *qlean.rule.not()*
+    Negate a predicate.
+
+qlean.rule.buftype(x)                                   *qlean.rule.buftype()*
+    Match |'buftype'| against string or string[].
+
+qlean.rule.filetype(x)                                 *qlean.rule.filetype()*
+    Match |'filetype'| against string or string[].
+
+qlean.rule.bufname(pattern)                             *qlean.rule.bufname()*
+    Match bufname against a Lua pattern.
+
+qlean.rule.buflisted()                                 *qlean.rule.buflisted()*
+    True when |'buflisted'| is set.
+
+qlean.rule.bufhidden(x)                               *qlean.rule.bufhidden()*
+    Match |'bufhidden'| against string or string[].
+
+qlean.rule.modified()                                  *qlean.rule.modified()*
+    True when the buffer is modified.
+
+qlean.rule.modifiable()                              *qlean.rule.modifiable()*
+    True when the buffer is modifiable.
+
+qlean.rule.bvar(key, value?)                               *qlean.rule.bvar()*
+    When value is omitted, true if the buffer variable exists.
+    When value is provided, true if it equals the variable.
+
+==============================================================================
+EXAMPLES                                                   *qlean-examples*
+
+Treat terminal buffers as keep-designated buffers: >
+    keep = rule.any(
+      rule.buftype(""),
+      rule.buftype("terminal")
+    )
+<
+
+Include gitcommit/gitrebase as keep-designated buffers: >
+    keep = rule.any(
+      rule.buftype(""),
+      rule.filetype({ "gitcommit", "gitrebase" })
+    )
+<
+
+Always close file trees (neo-tree, etc.): >
+    keep = rule.all(
+      rule.buftype(""),
+      rule.not(rule.bufname("^neo%-tree://"))
+    )
+<
+
+Write your own predicate: >
+    keep = function(ctx)
+      return ctx.bo.buftype == "" and ctx.bufname:match("/keep/") ~= nil
+    end
+<
+
+==============================================================================
+NOTES                                                       *qlean-notes*
+
+- Does not interfere with :q! or :qa!.
+- Does not save or delete buffers.
+- If keep predicate errors, cleanup is skipped for that window.
+
+==============================================================================
+LICENSE                                                     *qlean-license*
+
+MIT License.
+
+Also see http://www.opensource.org/licenses/MIT for more information.
+
+vim:textwidth=78:tabstop=4:shiftwidth=4:expandtab:filetype=help:norl:
