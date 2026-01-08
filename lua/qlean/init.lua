@@ -100,7 +100,7 @@ local function has_modified_keep(ctx_of)
   return false
 end
 
-local function count_keep_windows(ctx_of)
+local function get_keep_window_state(ctx_of)
   local current = vim.api.nvim_get_current_win()
   local current_is_keep = false
   local keep_count = 0
@@ -114,6 +114,9 @@ local function count_keep_windows(ctx_of)
           keep_count = keep_count + 1
           if win == current then
             current_is_keep = true
+          end
+          if keep_count >= 2 then
+            return keep_count, current_is_keep
           end
         end
       end
@@ -142,7 +145,7 @@ end
 local function on_quit_pre()
   local ctx_of = ctx_cache()
 
-  local keep_count, current_is_keep = count_keep_windows(ctx_of)
+  local keep_count, current_is_keep = get_keep_window_state(ctx_of)
   if keep_count == 1 and current_is_keep then
     if has_modified_keep(ctx_of) then
       warn("qlean: modified work buffers exist; save them before quitting.")
