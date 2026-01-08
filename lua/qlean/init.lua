@@ -2,8 +2,17 @@ local M = {}
 
 local rule = require("qlean.rule")
 
+---@class qlean.ContextBo
+---@field buftype string
+---@field filetype string
+---@field buflisted boolean
+---@field bufhidden string
+---@field modifiable boolean
+---@field readonly boolean
+---@field modified boolean
+
 ---@class qlean.Context
----@field bo table<string, any>
+---@field bo qlean.ContextBo
 ---@field bufname string
 
 ---@alias qlean.Predicate fun(bufnr: integer, ctx: qlean.Context): boolean
