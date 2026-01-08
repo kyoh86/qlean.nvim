@@ -34,11 +34,13 @@ Neovim用プラグインです。
 
 ### 最小設定（おすすめ）
 
+何も設定しない場合、`buftype == ''`をkeepとして扱います。
+
 ```lua
 local rule = require("qlean.rule")
 
 require("qlean").setup({
-  keep = rule.buftype(""),
+  keep = rule.buftype(""), -- default
 })
 ```
 

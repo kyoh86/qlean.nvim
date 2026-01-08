@@ -1,7 +1,9 @@
 local M = {}
 
+local rule = require("qlean.rule")
+
 local default_config = {
-  keep = nil,
+  keep = rule.buftype(""),
   skip_if_modified_keep = true,
   debug = false,
 }

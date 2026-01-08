@@ -34,11 +34,13 @@ No extra commands are needed.
 
 ### Minimal setup (recommended)
 
+If you don't set anything, `buftype == ''` is treated as keep.
+
 ```lua
 local rule = require("qlean.rule")
 
 require("qlean").setup({
-  keep = rule.buftype(""),
+  keep = rule.buftype(""), -- default
 })
 ```
 
