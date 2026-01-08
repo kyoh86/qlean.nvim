@@ -1,9 +1,5 @@
 local M = {}
 
----@alias qlean.Predicate fun(bufnr: integer, ctx: qlean.Context): boolean
-
----@alias qlean.PredicateList qlean.Predicate|qlean.Predicate[]
-
 local function normalize(value)
   if type(value) == "table" then
     return value
