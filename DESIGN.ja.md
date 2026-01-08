@@ -182,9 +182,9 @@ ctx = {
 ### 通常ファイル＋terminalをkeep
 
 ```lua
-local rule = require("quit_cleanup.rule")
+local rule = require("qlean.rule")
 
-require("quit_cleanup").setup({
+require("qlean").setup({
   keep = rule.any(
     rule.buftype(""),
     rule.buftype("terminal")
