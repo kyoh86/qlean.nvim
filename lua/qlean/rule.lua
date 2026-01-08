@@ -74,7 +74,7 @@ end
 ---@return qlean.Predicate
 function M.bufname(pattern)
   return function(_, ctx)
-    return (ctx.name or ""):match(pattern) ~= nil
+    return (ctx.bufname or ""):match(pattern) ~= nil
   end
 end
 

@@ -99,7 +99,7 @@ rule.bvar(key, value?)
 
 ```lua
 local my_keep = function(bufnr, ctx)
-  return ctx.bo.buftype == "" and ctx.name:match("/keep/") ~= nil
+  return ctx.bo.buftype == "" and ctx.bufname:match("/keep/") ~= nil
 end
 ```
 
@@ -127,7 +127,7 @@ ctx = {
     modifiable,
     readonly,
   },
-  name = bufname,
+  bufname = bufname,
   modified = boolean,
 }
 ```

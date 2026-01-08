@@ -92,8 +92,8 @@ keep = rule.all(
 
 ```lua
 keep = function(bufnr, ctx)
-  -- ctx には buftype / filetype / name などが含まれます
-  return ctx.bo.buftype == "" and ctx.name:match("/work/") ~= nil
+  -- ctx には buftype / filetype / bufname などが含まれます
+  return ctx.bo.buftype == "" and ctx.bufname:match("/work/") ~= nil
 end
 ```
 

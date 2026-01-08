@@ -4,7 +4,7 @@ local rule = require("qlean.rule")
 
 ---@class qlean.Context
 ---@field bo table<string, any>
----@field name string
+---@field bufname string
 ---@field modified boolean
 
 ---@alias qlean.Predicate fun(bufnr: integer, ctx: qlean.Context): boolean
@@ -42,9 +42,9 @@ local function get_buf_option(bufnr, name, fallback)
 end
 
 local function build_ctx(bufnr)
-  local name_ok, name = pcall(vim.api.nvim_buf_get_name, bufnr)
-  if not name_ok then
-    name = ""
+  local bufname_ok, bufname = pcall(vim.api.nvim_buf_get_name, bufnr)
+  if not bufname_ok then
+    bufname = ""
   end
 
   return {
@@ -56,7 +56,7 @@ local function build_ctx(bufnr)
       modifiable = get_buf_option(bufnr, "modifiable", false),
       readonly = get_buf_option(bufnr, "readonly", false),
     },
-    name = name,
+    bufname = bufname,
     modified = get_buf_option(bufnr, "modified", false),
   }
 end
