@@ -98,28 +98,55 @@ local function keep_predicate(bufnr, ctx)
   return result and true or false
 end
 
+local ACTION = {
+  abort = "abort",
+  cleanup = "cleanup",
+  keep = "keep",
+  ignore = "ignore",
+}
+
+local function classify_win(win, current, ctx_of)
+  if not vim.api.nvim_win_is_valid(win) then
+    return ACTION.ignore
+  end
+
+  local buf = vim.api.nvim_win_get_buf(win)
+  if not vim.api.nvim_buf_is_valid(buf) then
+    return ACTION.ignore
+  end
+
+  local ctx = ctx_of(buf)
+  if keep_predicate(buf, ctx) then
+    return ACTION.keep
+  end
+
+  -- If the current window is non-keep, abort cleanup.
+  if win == current then
+    return ACTION.abort
+  end
+
+  return ACTION.cleanup
+end
+
 local function collect_cleanup_wins(ctx_of)
   local current = vim.api.nvim_get_current_win()
   local keep_count = 0
   local cleanup_wins = {}
 
   for _, win in ipairs(vim.api.nvim_list_wins()) do
-    if vim.api.nvim_win_is_valid(win) then
-      local buf = vim.api.nvim_win_get_buf(win)
-      if vim.api.nvim_buf_is_valid(buf) then
-        local ctx = ctx_of(buf)
-        if keep_predicate(buf, ctx) then
-          keep_count = keep_count + 1
-          if keep_count >= 2 then
-            return {}
-          end
-        else
-          if win == current then
-            return {}
-          end
-          table.insert(cleanup_wins, win)
-        end
+    local action = classify_win(win, current, ctx_of)
+    if action == ACTION.keep then
+      keep_count = keep_count + 1
+      if keep_count >= 2 then
+        -- Cleanup happens only when there is exactly one keep window.
+        return {}
       end
+    elseif action == ACTION.abort then
+      -- If the current window is non-keep, abort cleanup.
+      return {}
+    elseif action == ACTION.cleanup then
+      -- Non-keep, non-current candidates for cleanup.
+      table.insert(cleanup_wins, win)
     end
   end
 
