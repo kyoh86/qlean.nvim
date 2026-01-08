@@ -31,7 +31,7 @@ local function get_buf_option(bufnr, name, fallback)
 end
 
 ---@return qlean.Context
-local function build_ctx(bufnr)
+local function build_ctx(winId, bufnr)
   local bufname_ok, bufname = pcall(vim.api.nvim_buf_get_name, bufnr)
   if not bufname_ok then
     bufname = ""
@@ -49,20 +49,25 @@ local function build_ctx(bufnr)
     },
     bufname = bufname,
     bufnr = bufnr,
+    winId = winId,
   }
 end
 
 ---@return qlean.ContextStore
 local function ctx_cache()
+  ---@type table<string, qlean.Context>
   local cache = {}
-  return function(bufnr)
-    local ctx = cache[bufnr]
+  ---@param winId integer
+  ---@param bufnr integer
+  return function(winId, bufnr)
+    local key = string.format("%d-%d", winId, bufnr)
+    local ctx = cache[key]
     if ctx then
       return ctx
     end
 
-    ctx = build_ctx(bufnr)
-    cache[bufnr] = ctx
+    ctx = build_ctx(winId, bufnr)
+    cache[key] = ctx
     return ctx
   end
 end
