@@ -81,11 +81,11 @@ rule.not(p)
 ### Typical predicate builders
 
 ```lua
-rule.buftype(x)
-rule.filetype(x)
+rule.buftype(value, ...)
+rule.filetype(value, ...)
 rule.bufname(pattern)
 rule.buflisted(bool)
-rule.bufhidden(x)
+rule.bufhidden(value, ...)
 rule.modified(bool)
 rule.modifiable(bool)
 rule.bvar(key, value?)
@@ -143,6 +143,7 @@ ctx = {
 2. Build ctx cache
 3. Extract close targets
    - Only clean up when there is exactly one keep-designated window
+   - Do not clean up if the current window is non-keep
    - All windows except the current one
    - Windows showing buffers with `keep == false`
 4. Run `:close` on each (do not use `!`)
@@ -178,7 +179,7 @@ require("qlean").setup({
 ```lua
 keep = rule.any(
   rule.buftype(""),
-  rule.filetype({ "gitcommit", "gitrebase" })
+  rule.filetype("gitcommit", "gitrebase")
 )
 ```
 

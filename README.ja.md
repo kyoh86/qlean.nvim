@@ -70,7 +70,7 @@ keep = rule.any(
 ```lua
 keep = rule.any(
   rule.buftype(""),
-  rule.filetype({ "gitcommit", "gitrebase" })
+  rule.filetype("gitcommit", "gitrebase")
 )
 ```
 
@@ -108,17 +108,17 @@ rule.not(p)
 ### 判定ビルダー
 
 ```lua
-rule.buftype(x)
-rule.filetype(x)
+rule.buftype(value, ...)
+rule.filetype(value, ...)
 rule.bufname(pattern)
 rule.buflisted(bool)
-rule.bufhidden(x)
+rule.bufhidden(value, ...)
 rule.modified(bool)
 rule.modifiable(bool)
 rule.bvar(key, value?)
 ```
 
-`x`は`string`または`string[]`を指定できます。
+`x`は`string`で、複数指定したい場合は可変長引数で渡せます。
 
 ## 注意点
 

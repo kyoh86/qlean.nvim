@@ -82,11 +82,11 @@ rule.not(p)
 ### 典型predicateビルダー
 
 ```lua
-rule.buftype(x)
-rule.filetype(x)
+rule.buftype(value, ...)
+rule.filetype(value, ...)
 rule.bufname(pattern)
 rule.buflisted(bool)
-rule.bufhidden(x)
+rule.bufhidden(value, ...)
 rule.modified(bool)
 rule.modifiable(bool)
 rule.bvar(key, value?)
@@ -144,6 +144,7 @@ ctx = {
 2. ctxキャッシュ生成
 3. close対象抽出
    - keepウィンドウが1つだけの場合のみ掃除する
+   - 現在ウィンドウがnon-keepなら掃除しない
    - 現在ウィンドウ以外
    - `keep == false`のバッファを表示しているウィンドウ
 4. `:close`を個別実行（`!`は使わない）
@@ -179,7 +180,7 @@ require("qlean").setup({
 ```lua
 keep = rule.any(
   rule.buftype(""),
-  rule.filetype({ "gitcommit", "gitrebase" })
+  rule.filetype("gitcommit", "gitrebase")
 )
 ```
 

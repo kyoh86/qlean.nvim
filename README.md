@@ -72,7 +72,7 @@ keep = rule.any(
 ```lua
 keep = rule.any(
   rule.buftype(""),
-  rule.filetype({ "gitcommit", "gitrebase" })
+  rule.filetype("gitcommit", "gitrebase")
 )
 ```
 
@@ -110,17 +110,17 @@ rule.not(p)
 ### Predicate builders
 
 ```lua
-rule.buftype(x)
-rule.filetype(x)
+rule.buftype(value, ...)
+rule.filetype(value, ...)
 rule.bufname(pattern)
 rule.buflisted(bool)
-rule.bufhidden(x)
+rule.bufhidden(value, ...)
 rule.modified(bool)
 rule.modifiable(bool)
 rule.bvar(key, value?)
 ```
 
-`x` can be a `string` or `string[]`.
+`x` can be a `string`. Pass multiple strings as varargs.
 
 ## Notes
 

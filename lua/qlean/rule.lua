@@ -1,16 +1,10 @@
 local M = {}
 
-local function listize(value)
-  if type(value) == "table" then
-    return value
-  end
-  return { value }
-end
-
+---@param p qlean.Predicate
 ---@vararg qlean.Predicate
 ---@return qlean.Predicate
-function M.all(...)
-  local predicates = { ... }
+function M.all(p, ...)
+  local predicates = { p, ... }
   return function(ctx)
     for _, predicate in ipairs(predicates) do
       if not predicate(ctx) then
@@ -21,10 +15,11 @@ function M.all(...)
   end
 end
 
+---@param p qlean.Predicate
 ---@vararg qlean.Predicate
 ---@return qlean.Predicate
-function M.any(...)
-  local predicates = { ... }
+function M.any(p, ...)
+  local predicates = { p, ... }
   return function(ctx)
     for _, predicate in ipairs(predicates) do
       if predicate(ctx) then
@@ -43,19 +38,21 @@ M["not"] = function(predicate)
   end
 end
 
----@param value string|string[]
+---@param value string
+---@vararg string
 ---@return qlean.Predicate
-function M.buftype(value)
-  local values = listize(value)
+function M.buftype(value, ...)
+  local values = { value, ... }
   return function(ctx)
     return vim.list_contains(values, ctx.bo.buftype or "")
   end
 end
 
----@param value string|string[]
+---@param value string
+---@vararg string
 ---@return qlean.Predicate
-function M.filetype(value)
-  local values = listize(value)
+function M.filetype(value, ...)
+  local values = { value, ... }
   return function(ctx)
     return vim.list_contains(values, ctx.bo.filetype or "")
   end
@@ -76,10 +73,11 @@ function M.buflisted()
   end
 end
 
----@param value string|string[]
+---@param value string
+---@vararg string
 ---@return qlean.Predicate
-function M.bufhidden(value)
-  local values = listize(value)
+function M.bufhidden(value, ...)
+  local values = { value, ... }
   return function(ctx)
     return vim.list_contains(values, ctx.bo.bufhidden or "")
   end
