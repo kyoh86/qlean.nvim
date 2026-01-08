@@ -2,14 +2,14 @@
 
 ## Goals
 
-- When `:q`/`:quit` runs and only one keep window remains, and the current window is keep, clean up non-keep windows
+- When `:q`/`:quit` runs and only one keep-designated window remains, and the current window is keep-designated, clean up non-keep windows
 - Cleanup runs even when buffers are modified; whether `:q` succeeds is left to Neovim
 - Never override Neovim's native behavior
   - Error messages on failure (E37, etc.)
 
 This plugin does not try to "quit smarter." It focuses on:
 
-> Only when closing the last keep window, clean up non-keep windows.
+> Only when closing the last keep-designated window, clean up non-keep windows.
 
 ## Core design
 
@@ -143,7 +143,7 @@ ctx = {
 2. Build ctx cache
 3. Extract close targets
 
-   - Only clean up when there is exactly one keep window
+   - Only clean up when there is exactly one keep-designated window
    - All windows except the current one
    - Windows showing buffers with `keep == false`
 4. Run `:close` on each (do not use `!`)
@@ -207,6 +207,6 @@ keep = rule.all(
 ## Summary
 
 - The only axis is `keep` (keep or non-keep)
-- Cleanup runs only when one keep window remains
+- Cleanup runs only when one keep-designated window remains
 - `rule` is a minimal predicate+combinator toolkit
 - Preserve Neovim's native failure UX

@@ -1,13 +1,13 @@
 # qlean.nvim
 
 `qlean` is a Neovim plugin that prevents the “only auxiliary UI windows remain”
-problem when you close your last keep window.
+problem when you close your last keep-designated window.
 
-> It runs only when there is exactly one keep window.
+> It runs only when there is exactly one keep-designated window.
 
 ## What it does
 
-- On `:q`, if only one keep window remains and the current window is keep
+- On `:q`, if only one keep-designated window remains and the current window is keep-designated
   - It closes non-keep windows (help/quickfix/tree, etc.)
 - It still performs cleanup even if buffers are modified
   - Whether `:q` succeeds is left to Neovim
