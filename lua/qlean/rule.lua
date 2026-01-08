@@ -99,7 +99,7 @@ end
 ---@return qlean.Predicate
 function M.modified(value)
   return function(_, ctx)
-    return ctx.modified == value
+    return ctx.bo.modified == value
   end
 end
 

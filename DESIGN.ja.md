@@ -124,15 +124,15 @@ end
 ```lua
 ctx = {
   bo = {
-    buftype,
-    filetype,
-    buflisted,
-    bufhidden,
-    modifiable,
-    readonly,
+    buftype = string,
+    filetype = string,
+    buflisted = boolean,
+    bufhidden = boolean,
+    modifiable = boolean,
+    readonly = boolean,
+    modified = boolean,
   },
   bufname = bufname,
-  modified = boolean,
 }
 ```
 

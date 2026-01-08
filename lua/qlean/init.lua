@@ -5,7 +5,6 @@ local rule = require("qlean.rule")
 ---@class qlean.Context
 ---@field bo table<string, any>
 ---@field bufname string
----@field modified boolean
 
 ---@alias qlean.Predicate fun(bufnr: integer, ctx: qlean.Context): boolean
 
@@ -55,9 +54,9 @@ local function build_ctx(bufnr)
       bufhidden = get_buf_option(bufnr, "bufhidden", ""),
       modifiable = get_buf_option(bufnr, "modifiable", false),
       readonly = get_buf_option(bufnr, "readonly", false),
+      modified = get_buf_option(bufnr, "modified", false),
     },
     bufname = bufname,
-    modified = get_buf_option(bufnr, "modified", false),
   }
 end
 
