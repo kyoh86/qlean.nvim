@@ -2,15 +2,14 @@
 
 ## Goals
 
-- When `:q`/`:quit` runs, automatically close buffers that are not keep buffers
-- If any keep buffer is modified, do nothing
+- When `:q`/`:quit` runs and only one keep window remains, clean up non-keep windows
+- Cleanup runs even when buffers are modified; whether `:q` succeeds is left to Neovim
 - Never override Neovim's native behavior
-  - Modified-buffer protection
   - Error messages on failure (E37, etc.)
 
 This plugin does not try to "quit smarter." It focuses on:
 
-> Only when quitting is possible, clean up non-keep buffers.
+> Only when closing the last keep window, clean up non-keep windows.
 
 ## Core design
 
@@ -37,23 +36,12 @@ This is not about "editable or not," but about:
   - Not edits
   - Often still part of what should be kept
 
-## Safety policy (gate)
+## Safety policy
 
-### Modified-buffer protection
+### Handling modified buffers
 
-```lua
-skip_if_modified_keep = true  -- default
-```
-
-- If any `keep == true` buffer is modified
-
-  - If there is only one keep window, warn and abort the quit
-  - Otherwise, do not clean up UI and fully defer to Neovim's behavior
-
-#### Rationale
-
-- Prevent UI changes when quit will fail
-- Respect the native Neovim failure UX
+- Cleanup runs even when buffers are modified
+- Whether `:q` succeeds is left to Neovim
 
 ## `rule` module design
 
@@ -111,7 +99,7 @@ rule.bvar(key, value?)
 
 ```lua
 local my_keep = function(bufnr, ctx)
-  return ctx.bo.buftype == "" and ctx.name:match("/work/") ~= nil
+  return ctx.bo.buftype == "" and ctx.name:match("/keep/") ~= nil
 end
 ```
 
@@ -153,17 +141,13 @@ ctx = {
 
 1. QuitPre fires
 2. Build ctx cache
-3. Gate check
-
-   - If there is only one keep window and any modified keep buffer exists, warn and abort
-   - If any modified keep buffer exists, return
-4. Extract close targets
+3. Extract close targets
 
    - Only clean up when there is exactly one keep window
    - All windows except the current one
    - Windows showing buffers with `keep == false`
-5. Run `:close` on each (do not use `!`)
-6. Return control to the quit command
+4. Run `:close` on each (do not use `!`)
+5. Return control to the quit command
 
 ## Close strategy
 
@@ -222,7 +206,7 @@ keep = rule.all(
 
 ## Summary
 
-- The only axis is `keep` (in-progress or not)
-- Gate is presence of modified keep buffers
+- The only axis is `keep` (keep or non-keep)
+- Cleanup runs only when one keep window remains
 - `rule` is a minimal predicate+combinator toolkit
 - Preserve Neovim's native failure UX

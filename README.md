@@ -3,13 +3,14 @@
 `qlean` is a Neovim plugin that prevents the “only auxiliary UI windows remain”
 problem when you close your last keep window.
 
-> If any keep buffers remain, it does nothing.
+> It runs only when there is exactly one keep window.
 
 ## What it does
 
 - On `:q`, if only one keep window remains
   - It closes non-keep windows (help/quickfix/tree, etc.)
-- If any keep buffer is modified, it warns and aborts the quit
+- It still performs cleanup even if buffers are modified
+  - Whether `:q` succeeds is left to Neovim
 
 `qlean` does not force quitting.
 
@@ -92,7 +93,7 @@ keep = rule.all(
 ```lua
 keep = function(bufnr, ctx)
   -- ctx includes buftype / filetype / name, etc.
-  return ctx.bo.buftype == "" and ctx.name:match("/work/") ~= nil
+  return ctx.bo.buftype == "" and ctx.name:match("/keep/") ~= nil
 end
 ```
 
@@ -122,20 +123,6 @@ rule.bvar(key, value?)
 ```
 
 `x` can be a `string` or `string[]`.
-
-## Options
-
-### Behavior when modified buffers exist
-
-```lua
-skip_if_modified_keep = true  -- default
-```
-
-- `true` (default)
-  - If any `keep` buffer is modified, qlean does nothing
-  - If there is only one keep window, it warns and aborts the quit
-- `false`
-  - Non-keep buffers are closed, but `:q` may still fail
 
 ## Notes
 

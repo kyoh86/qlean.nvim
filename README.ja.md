@@ -3,13 +3,14 @@
 `qlean`は、「最後の作業ウィンドウを閉じるときに補助UIだけが残る」問題を解消する
 Neovim用プラグインです。
 
-> 作業対象が残っているときは、何もしません。
+> keep対象のウィンドウが1つだけのときに動作します。
 
 ## 何をしてくれるか
 
 - `:q`時、keep対象のウィンドウが1つだけなら
   - 非keepウィンドウ（help/quickfix/tree等）をまとめてcloseします
-- keep対象のmodifiedバッファがある場合は、警告してquitを中断します
+- modifiedバッファがある場合でも掃除は行います
+  - `:q`の成否はNeovim本体の挙動に任せます
 
 `qlean`は「終了を強制する」プラグインではありません。
 
@@ -44,7 +45,7 @@ require("qlean").setup({
 })
 ```
 
-- 通常ファイル（`buftype == ''`）をユーザーの作業対象として扱います
+- 通常ファイル（`buftype == ''`）をkeep対象として扱います
 - それ以外（help/quickfix/tree等）を表示しているウィンドウはquit前にcloseされます
 
 ## keepとは
@@ -53,14 +54,14 @@ require("qlean").setup({
 
 - `keep(buf) == true`
 
-  - ユーザーの作業対象と見なされ、自動closeされません
+  - keep対象と見なされ、自動closeされません
 - `keep(buf) == false`
 
-  - ユーザーの作業対象外として、そのバッファを表示しているウィンドウがclose対象になります
+  - keep対象外として、そのバッファを表示しているウィンドウがclose対象になります
 
 ## 代表的な設定例
 
-### terminalもユーザーの作業対象として扱う
+### terminalもkeep対象として扱う
 
 ```lua
 keep = rule.any(
@@ -69,7 +70,7 @@ keep = rule.any(
 )
 ```
 
-### gitcommit/gitrebaseをユーザーの作業対象に含める
+### gitcommit/gitrebaseをkeep対象に含める
 
 ```lua
 keep = rule.any(
@@ -122,20 +123,6 @@ rule.bvar(key, value?)
 ```
 
 `x`は`string`または`string[]`を指定できます。
-
-## オプション
-
-### modifiedバッファがある場合の挙動
-
-```lua
-skip_if_modified_keep = true  -- default
-```
-
-- `true`（デフォルト）
-  - `keep`に該当するバッファが一つでもmodifiedの場合、qleanは何もしません
-  - ただしkeepウィンドウが1つだけの場合は警告してquitを中断します
-- `false`
-  - 作業対象外のバッファに対してcloseは行われますが、`:q`が失敗することがあります
 
 ## 注意点
 

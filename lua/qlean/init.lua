@@ -4,7 +4,6 @@ local rule = require("qlean.rule")
 
 local default_config = {
   keep = rule.buftype(""),
-  skip_if_modified_keep = true,
   debug = false,
 }
 
@@ -17,12 +16,6 @@ local function notify(message)
     return
   end
 
-  vim.schedule(function()
-    vim.notify(message, vim.log.levels.WARN)
-  end)
-end
-
-local function warn(message)
   vim.schedule(function()
     vim.notify(message, vim.log.levels.WARN)
   end)
@@ -85,23 +78,6 @@ local function keep_predicate(bufnr, ctx)
   return result and true or false
 end
 
-local function has_modified_keep(ctx_of)
-  if not state.config.skip_if_modified_keep then
-    return false
-  end
-
-  for _, buf in ipairs(vim.api.nvim_list_bufs()) do
-    if vim.api.nvim_buf_is_valid(buf) then
-      local ctx = ctx_of(buf)
-      if keep_predicate(buf, ctx) and ctx.modified then
-        return true
-      end
-    end
-  end
-
-  return false
-end
-
 local function get_keep_window_state(ctx_of)
   local current = vim.api.nvim_get_current_win()
   local current_is_keep = false
@@ -149,16 +125,7 @@ local function on_quit_pre()
 
   local keep_count, current_is_keep = get_keep_window_state(ctx_of)
   if keep_count == 1 and current_is_keep then
-    if has_modified_keep(ctx_of) then
-      warn("qlean: modified work buffers exist; save them before quitting.")
-      error("qlean: quit aborted", 0)
-    end
     close_non_keep_windows(ctx_of)
-    return
-  end
-
-  if has_modified_keep(ctx_of) then
-    return
   end
 end
 
