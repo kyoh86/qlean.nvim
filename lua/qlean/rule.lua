@@ -1,5 +1,9 @@
 local M = {}
 
+---@alias qlean.Predicate fun(bufnr: integer, ctx: qlean.Context): boolean
+
+---@alias qlean.PredicateList qlean.Predicate|qlean.Predicate[]
+
 local function normalize(value)
   if type(value) == "table" then
     return value
@@ -16,6 +20,8 @@ local function contains(list, value)
   return false
 end
 
+---@vararg qlean.Predicate
+---@return qlean.Predicate
 function M.all(...)
   local predicates = { ... }
   return function(bufnr, ctx)
@@ -28,6 +34,8 @@ function M.all(...)
   end
 end
 
+---@vararg qlean.Predicate
+---@return qlean.Predicate
 function M.any(...)
   local predicates = { ... }
   return function(bufnr, ctx)
@@ -40,12 +48,16 @@ function M.any(...)
   end
 end
 
+---@param predicate qlean.Predicate
+---@return qlean.Predicate
 M["not"] = function(predicate)
   return function(bufnr, ctx)
     return not predicate(bufnr, ctx)
   end
 end
 
+---@param value string|string[]
+---@return qlean.Predicate
 function M.buftype(value)
   local values = normalize(value)
   return function(_, ctx)
@@ -53,6 +65,8 @@ function M.buftype(value)
   end
 end
 
+---@param value string|string[]
+---@return qlean.Predicate
 function M.filetype(value)
   local values = normalize(value)
   return function(_, ctx)
@@ -60,18 +74,24 @@ function M.filetype(value)
   end
 end
 
+---@param pattern string
+---@return qlean.Predicate
 function M.bufname(pattern)
   return function(_, ctx)
     return (ctx.name or ""):match(pattern) ~= nil
   end
 end
 
+---@param value boolean
+---@return qlean.Predicate
 function M.buflisted(value)
   return function(_, ctx)
     return ctx.bo.buflisted == value
   end
 end
 
+---@param value string|string[]
+---@return qlean.Predicate
 function M.bufhidden(value)
   local values = normalize(value)
   return function(_, ctx)
@@ -79,18 +99,25 @@ function M.bufhidden(value)
   end
 end
 
+---@param value boolean
+---@return qlean.Predicate
 function M.modified(value)
   return function(_, ctx)
     return ctx.modified == value
   end
 end
 
+---@param value boolean
+---@return qlean.Predicate
 function M.modifiable(value)
   return function(_, ctx)
     return ctx.bo.modifiable == value
   end
 end
 
+---@param key string
+---@param value? any
+---@return qlean.Predicate
 function M.bvar(key, value)
   if value == nil then
     return function(bufnr)

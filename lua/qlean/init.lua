@@ -2,6 +2,18 @@ local M = {}
 
 local rule = require("qlean.rule")
 
+---@class qlean.Context
+---@field bo table<string, any>
+---@field name string
+---@field modified boolean
+
+---@alias qlean.Predicate fun(bufnr: integer, ctx: qlean.Context): boolean
+
+---@class qlean.Config
+---@field keep? qlean.Predicate|nil
+---@field debug? boolean
+
+---@type qlean.Config
 local default_config = {
   keep = rule.buftype(""),
   debug = false,
@@ -126,6 +138,7 @@ local function on_quit_pre()
   end
 end
 
+---@param opts qlean.Config|nil
 function M.setup(opts)
   state.config = vim.tbl_deep_extend("force", {}, default_config, opts or {})
 
