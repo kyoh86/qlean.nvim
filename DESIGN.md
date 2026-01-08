@@ -2,15 +2,15 @@
 
 ## Goals
 
-- When `:q`/`:quit` runs, automatically close buffers that are not part of the current work
-- If any buffer considered "work" is modified, do nothing
+- When `:q`/`:quit` runs, automatically close buffers that are not keep buffers
+- If any keep buffer is modified, do nothing
 - Never override Neovim's native behavior
   - Modified-buffer protection
   - Error messages on failure (E37, etc.)
 
 This plugin does not try to "quit smarter." It focuses on:
 
-> Only when quitting is possible, clean up non-work buffers.
+> Only when quitting is possible, clean up non-keep buffers.
 
 ## Core design
 
@@ -35,7 +35,7 @@ This is not about "editable or not," but about:
 
 - terminal/acwrite/prompt, etc.
   - Not edits
-  - Often still part of ongoing work
+  - Often still part of what should be kept
 
 ## Safety policy (gate)
 
@@ -47,8 +47,8 @@ skip_if_modified_keep = true  -- default
 
 - If any `keep == true` buffer is modified
 
-  - Do not clean up UI at all
-  - Fully defer to Neovim's behavior
+  - If there is only one keep window, warn and abort the quit
+  - Otherwise, do not clean up UI and fully defer to Neovim's behavior
 
 #### Rationale
 
@@ -155,6 +155,7 @@ ctx = {
 2. Build ctx cache
 3. Gate check
 
+   - If there is only one keep window and any modified keep buffer exists, warn and abort
    - If any modified keep buffer exists, return
 4. Extract close targets
 

@@ -2,8 +2,8 @@
 
 ## プラグインの目的
 
-- `:q`/`:quit`実行時、作業中ではないバッファだけを自動的にcloseする
-- 作業中と判定されたバッファが1つでもmodifiedの場合は、何もしない
+- `:q`/`:quit`実行時、作業対象ではないバッファだけを自動的にcloseする
+- 作業対象と判定されたバッファが1つでもmodifiedの場合は、何もしない
 - Neovim本体の
   - modifiedバッファ保護
   - 失敗時のエラーメッセージ（E37等）を一切上書きしない
@@ -22,11 +22,11 @@
 
 - `keep == true`
 
-  - quit時点で作業中と見なす
+  - quit時点で作業対象と見なす
   - 自動closeの対象にしない
 - `keep == false`
 
-  - 作業完了/UI付随と見なす
+  - 作業対象外/UI付随と見なす
   - quit前にcloseしてよい
 
 「編集対象かどうか」ではなく、
@@ -39,7 +39,7 @@
 
 - terminal/acwrite/promptなど
   - 編集ではないが
-  - 残っていたら作業中とみなしたいものが多い
+  - 残っていたら作業対象とみなしたいものが多い
 
 ## 安全性ポリシー（gate）
 
@@ -51,8 +51,8 @@ skip_if_modified_keep = true  -- default
 
 - `keep == true`なバッファが1つでもmodifiedの場合
 
-  - UI掃除を一切行わない
-  - Neovim本体の挙動に完全に委ねる
+  - keepウィンドウが1つだけの場合は警告してquitを中断する
+  - それ以外はUI掃除を一切行わず、Neovim本体の挙動に完全に委ねる
 
 #### 採用理由
 
@@ -159,7 +159,8 @@ ctx = {
 2. ctxキャッシュ生成
 3. gate判定
 
-   - modifiedなkeepバッファがあればreturn
+   - keepウィンドウが1つだけでmodifiedなkeepバッファがある場合は警告して中断
+   - modifiedなkeepバッファがある場合はreturn
 4. close対象抽出
 
    - keepウィンドウが1つだけの場合のみ掃除する
@@ -225,7 +226,7 @@ keep = rule.all(
 
 ## 設計まとめ
 
-- 判定軸はkeep（作業中かどうか）のみ
+- 判定軸はkeep（作業対象かどうか）のみ
 - gateはmodifiedkeepバッファがあるかのON/OFF
 - ruleはpredicate+combinatorの最小構成
 - Vim/Neovim本体の失敗UXを最優先で尊重する

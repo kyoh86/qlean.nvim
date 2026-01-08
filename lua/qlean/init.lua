@@ -20,6 +20,12 @@ local function notify(message)
   end)
 end
 
+local function warn(message)
+  vim.schedule(function()
+    vim.notify(message, vim.log.levels.WARN)
+  end)
+end
+
 local function get_buf_option(bufnr, name, fallback)
   local ok, value = pcall(vim.api.nvim_get_option_value, name, { buf = bufnr })
   if ok then
@@ -136,13 +142,18 @@ end
 local function on_quit_pre()
   local ctx_of = ctx_cache()
 
-  if has_modified_keep(ctx_of) then
+  local keep_count, current_is_keep = count_keep_windows(ctx_of)
+  if keep_count == 1 and current_is_keep then
+    if has_modified_keep(ctx_of) then
+      warn("qlean: modified work buffers exist; save them before quitting.")
+      error("qlean: quit aborted", 0)
+    end
+    close_non_keep_windows(ctx_of)
     return
   end
 
-  local keep_count, current_is_keep = count_keep_windows(ctx_of)
-  if keep_count == 1 and current_is_keep then
-    close_non_keep_windows(ctx_of)
+  if has_modified_keep(ctx_of) then
+    return
   end
 end
 

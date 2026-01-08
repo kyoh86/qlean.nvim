@@ -1,17 +1,15 @@
 # qlean.nvim
 
-`qlean` is a Neovim plugin that automatically closes only the windows showing
-buffers that are not part of the user's work when you run `:q`/`:quit`.
+`qlean` is a Neovim plugin that prevents the “only auxiliary UI windows remain”
+problem when you close your last keep window.
 
-> If any work-in-progress buffers remain, it does nothing.
+> If any keep buffers remain, it does nothing.
 
 ## What it does
 
-- When you run `:q` (and only one keep window remains)
-  - It removes leftover auxiliary UI windows (file tree/help/quickfix, etc.)
-  - It closes windows that display non-kept buffers
-- If there is any modified buffer considered part of the user's work, it does nothing
-  - Neovim's own error messages and behavior are preserved
+- On `:q`, if only one keep window remains
+  - It closes non-keep windows (help/quickfix/tree, etc.)
+- If any keep buffer is modified, it warns and aborts the quit
 
 `qlean` does not force quitting.
 
@@ -44,7 +42,7 @@ require("qlean").setup({
 })
 ```
 
-- Normal files (`buftype == ''`) are treated as work buffers
+- Normal files (`buftype == ''`) are treated as keep buffers
 - Windows showing other buffers (help/quickfix/tree, etc.) are closed before quit
 
 ## What is `keep`
@@ -53,14 +51,14 @@ require("qlean").setup({
 
 - `keep(buf) == true`
 
-  - Treated as a work buffer and not auto-closed
+  - Treated as a keep buffer and not auto-closed
 - `keep(buf) == false`
 
-  - Not a work buffer, so the window showing that buffer is closed
+  - Not a keep buffer, so the window showing that buffer is closed
 
 ## Common examples
 
-### Treat terminal buffers as work buffers
+### Treat terminal buffers as keep buffers
 
 ```lua
 keep = rule.any(
@@ -69,7 +67,7 @@ keep = rule.any(
 )
 ```
 
-### Include gitcommit/gitrebase as work buffers
+### Include gitcommit/gitrebase as keep buffers
 
 ```lua
 keep = rule.any(
@@ -133,8 +131,9 @@ skip_if_modified_keep = true  -- default
 
 - `true` (default)
   - If any `keep` buffer is modified, qlean does nothing
+  - If there is only one keep window, it warns and aborts the quit
 - `false`
-  - Non-work buffers are closed, but `:q` may still fail
+  - Non-keep buffers are closed, but `:q` may still fail
 
 ## Notes
 
