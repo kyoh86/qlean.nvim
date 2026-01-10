@@ -122,6 +122,12 @@ rule.bvar(key, value?)
 
 `x` can be a `string`. Pass multiple strings as varargs.
 
+## Acknowledgements
+
+Inspired by kawarimidoll's article. Thank you.
+
+- https://zenn.dev/vim_jp/articles/ff6cd224fab0c7
+
 ## Notes
 
 - Does not affect `:q!`/`:qa!`

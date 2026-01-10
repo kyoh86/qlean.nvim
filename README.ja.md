@@ -120,6 +120,12 @@ rule.bvar(key, value?)
 
 `x`は`string`で、複数指定したい場合は可変長引数で渡せます。
 
+## 謝辞
+
+kawarimidollさんの以下の記事に着想を得ました。ありがとうございます。
+
+- https://zenn.dev/vim_jp/articles/ff6cd224fab0c7
+
 ## 注意点
 
 - `:q!`/`:qa!`には関与しません
