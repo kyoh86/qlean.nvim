@@ -32,3 +32,4 @@ jobs:
           name: nvim-snap-diff
           path: |
             **/diff/*
+            **/.nvimlog
