@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "data_home": ".nvim-data",
+  "config_home": ".nvim-config",
+  "title": "Qlean doesn't closes quick-fix window when one editable-window is.",
+  "outputs": {
+    "ansi": "snapshot.ansi",
+    "html": "snapshot.html",
+    "json": "snapshot.json"
+  },
+  "rtp": [
+    "."
+  ],
+  "kind": "golden",
+  "scenario": "scenario.lua",
+  "out_dir": ".out"
+}
+
