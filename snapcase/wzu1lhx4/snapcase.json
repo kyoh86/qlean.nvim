@@ -8,6 +8,8 @@
     "html": "snapshot.html",
     "json": "snapshot.json"
   },
+  "wait": 500,
+  "rpc_timeout": 10000,
   "rtp": [
     "${ROOT}"
   ],

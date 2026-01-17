@@ -5,6 +5,8 @@
     "json": "snapshot.json",
     "ansi": "snapshot.ansi"
   },
+  "wait": 500,
+  "rpc_timeout": 10000,
   "data_home": ".nvim-data",
   "config_home": ".nvim-config",
   "title": "Qlean cleans quick-fix window but the hidden modified window is shown",
@@ -15,4 +17,3 @@
   "kind": "golden",
   "scenario": "scenario.lua"
 }
-
