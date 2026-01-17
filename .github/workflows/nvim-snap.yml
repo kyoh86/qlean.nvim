@@ -11,12 +11,16 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install Neovim
         run: sudo apt-get update && sudo apt-get install -y neovim
+      - name: Install nvim-snap
+        run: |
+          curl -sSL https://github.com/kyoh86/nvim-snap/releases/latest/download/nvim-snap -o nvim-snap
+          chmod +x nvim-snap
       - name: Run snapshots
         run: |
-          nvim --headless -u NONE -i NONE -l snap.lua run --root . --format json
+          ./nvim-snap run --root . --cases-dir snapcase --format json
       - name: Compare snapshots
         run: |
-          nvim --headless -u NONE -i NONE -l snap.lua compare --root . --format html --diff-always
+          ./nvim-snap compare --root . --cases-dir snapcase --format html --diff-always
       - name: Upload diffs
         if: always()
         uses: actions/upload-artifact@v4
