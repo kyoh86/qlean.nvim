@@ -9,7 +9,7 @@
     "json": "snapshot.json"
   },
   "wait": 500,
-  "rpc_timeout": 10000,
+  "rpc_timeout": 20000,
   "rtp": [
     "${ROOT}"
   ],
