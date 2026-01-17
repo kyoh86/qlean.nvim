@@ -1,0 +1,26 @@
+name: nvim-snap
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  snap:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Neovim
+        run: sudo apt-get update && sudo apt-get install -y neovim
+      - name: Run snapshots
+        run: |
+          nvim --headless -u NONE -i NONE -l snap.lua run --root . --format json
+      - name: Compare snapshots
+        run: |
+          nvim --headless -u NONE -i NONE -l snap.lua compare --root . --format html --diff-always
+      - name: Upload diffs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nvim-snap-diff
+          path: |
+            **/diff/*
