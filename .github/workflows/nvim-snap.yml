@@ -13,6 +13,8 @@ jobs:
         id: nvim
         with:
           neovim: true
+      - name: Check version of Neovim
+        run: nvim --version
       - name: Install nvim-snap
         run: |
           curl -sSL https://github.com/kyoh86/nvim-snap/releases/latest/download/nvim-snap -o nvim-snap
