@@ -3,9 +3,11 @@ require("qlean").setup({
   keep = rule.any(rule.buftype("", "acwrite", "terminal"), rule.filetype("fern")),
 })
 
-vim.fn.setline(1, {
-  "test for wzu1lhx4",
-})
-vim.cmd.copen()
-vim.cmd.new({ mods = { split = "topleft" } })
+vim.go.hidden = true
+
+vim.cmd.new()
+vim.fn.setline(1, { "foobar" })
 vim.cmd.quit()
+vim.cmd.copen()
+vim.cmd.wincmd("k")
+pcall(vim.cmd.quit)

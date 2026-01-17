@@ -9,10 +9,9 @@
     "json": "snapshot.json"
   },
   "rtp": [
-    "."
+    "${ROOT}"
   ],
   "kind": "golden",
   "scenario": "scenario.lua",
   "out_dir": ".out"
 }
-

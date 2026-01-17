@@ -1,0 +1,18 @@
+{
+  "out_dir": ".out",
+  "outputs": {
+    "html": "snapshot.html",
+    "json": "snapshot.json",
+    "ansi": "snapshot.ansi"
+  },
+  "data_home": ".nvim-data",
+  "config_home": ".nvim-config",
+  "title": "Qlean cleans quick-fix window but the hidden modified window is shown",
+  "rtp": [
+    "${ROOT}"
+  ],
+  "version": 1,
+  "kind": "golden",
+  "scenario": "scenario.lua"
+}
+
