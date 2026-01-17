@@ -25,6 +25,9 @@ jobs:
       - name: Compare snapshots
         run: |
           ./nvim-snap compare --root . --cases-dir snapcase --format html --diff-always
+      - name: Listup files
+        if: always()
+        run: find . -type f
       - name: Upload diffs
         if: always()
         uses: actions/upload-artifact@v4
