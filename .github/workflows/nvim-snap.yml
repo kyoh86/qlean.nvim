@@ -9,8 +9,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Install Neovim
-        run: sudo apt-get update && sudo apt-get install -y neovim
+      - uses: rhysd/action-setup-vim@v1
+        id: nvim
+        with:
+          neovim: true
       - name: Install nvim-snap
         run: |
           curl -sSL https://github.com/kyoh86/nvim-snap/releases/latest/download/nvim-snap -o nvim-snap
