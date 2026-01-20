@@ -41,5 +41,4 @@ jobs:
         with:
           name: nvim-snap-log
           path: |
-            **/.nvimlog
-          include-hidden-files: true
+            .nvim-snap-log/*
