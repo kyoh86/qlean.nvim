@@ -48,11 +48,6 @@ jobs:
               ext=${file##*.}; \
               cp "$file" ".nvim-snap-diff/${case_name}.${ext}"; \
             done
-      - name: Listup files
-        if: always()
-        run: |
-          find . -type f
-          cat state.log
       - name: Upload diffs
         if: always()
         uses: actions/upload-artifact@v4

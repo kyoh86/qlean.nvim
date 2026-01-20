@@ -1,7 +1,3 @@
-local function log(path, line)
-  vim.fn.writefile({ line }, path, "a")
-end
-
 local rule = require("qlean.rule")
 require("qlean").setup({
   keep = rule.any(rule.buftype("", "acwrite", "terminal"), rule.filetype("fern")),
@@ -20,13 +16,16 @@ vim.cmd.copen()
 -- Close last kept window
 -- - It closes other windows, hidden buffer is found, Neovim stops quitting because it is not saved (E37)
 vim.cmd.wincmd("k")
-
-log("state.log", vim.fn.execute("verbose set confirm?"))
-log("state.log", "before quit")
-local ok, err = pcall(vim.cmd.quit)
-log("state.log", "quit ok=" .. tostring(ok) .. " err=" .. tostring(err))
-log("state.log", "v:errmsg=" .. tostring(vim.v.errmsg))
-log("state.log", "after quit")
-
+-- NOTE: use `vim.api.nvim_cmd({cmd="quit"})` instead of `vim.cmd.quit`
+-- because `vim.cmd.quit` waits user-input before a commit c2e0fd1c35c22b4c53f903fb46fe9005926b1e16
+--     vim-patch:7.4.1886 (#36945)
+--
+--     Problem:    When waiting for a character is interrupted by receiving channel
+--                 data and the first character of a mapping was typed, the mapping
+--                 times out. (Ramel Eshed)
+--     Solution:   When dealing with channel data don't return from mch_inchar().
+--
+--     https://github.com/vim/vim/commit/cda7764d8e65325d4524e5d6c3174121eeb12cad
+pcall(vim.api.nvim_cmd, { cmd = "quit" }, { output = true })
 vim.cmd.redraw()
 snap_done()
