@@ -1,2 +1,2 @@
 [tools]
-"github:kyoh86/nvim-snap" = { version = "latest", asset_pattern = "nvim-snap" }
+"github:kyoh86/nvim-snap" = { version = "latest" }
