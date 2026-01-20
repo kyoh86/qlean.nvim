@@ -6,6 +6,7 @@
     "ansi": "snapshot.ansi"
   },
   "wait": 500,
+  "wait_done": true,
   "rpc_timeout": 30000,
   "log_file": ".nvimlog",
   "log_level": "debug",

@@ -5,9 +5,11 @@ require("qlean").setup({
 
 vim.go.hidden = true
 
-vim.cmd.new()
-vim.fn.setline(1, { "foobar" })
-vim.cmd.quit()
+if pcall(vim.cmd.new) then
+  vim.fn.setline(1, { "foobar" })
+  vim.cmd.wincmd("c")
+end
 vim.cmd.copen()
 vim.cmd.wincmd("k")
-pcall(vim.cmd.quit)
+vim.cmd.redraw()
+snap_done()
