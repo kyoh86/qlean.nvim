@@ -37,6 +37,17 @@ jobs:
       - name: Compare snapshots
         run: |
           nvim-snap compare --root . --cases-dir snapcase --output diff --diff-format text --diff-always
+      - name: Collect diffs
+        if: always()
+        run: |
+          rm -rf .nvim-snap-diff
+          mkdir -p .nvim-snap-diff
+          find snapcase -path "*/diff/*" -type f -print0 | \
+            while IFS= read -r -d '' file; do \
+              case_name=$(basename "$(dirname "$(dirname "$file")")"); \
+              ext=${file##*.}; \
+              cp "$file" ".nvim-snap-diff/${case_name}.${ext}"; \
+            done
       - name: Listup files
         if: always()
         run: find . -type f
@@ -46,7 +57,7 @@ jobs:
         with:
           name: nvim-snap-diff
           path: |
-            **/diff/*
+            .nvim-snap-diff/*
       - name: Upload logs
         if: always()
         uses: actions/upload-artifact@v4
