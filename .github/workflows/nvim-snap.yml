@@ -36,7 +36,7 @@ jobs:
           nvim-snap run --root . --cases-dir snapcase --format json
       - name: Compare snapshots
         run: |
-          nvim-snap compare --root . --cases-dir snapcase --format html --diff-always
+          nvim-snap compare --root . --cases-dir snapcase --output diff --diff-format text --diff-always
       - name: Listup files
         if: always()
         run: find . -type f
