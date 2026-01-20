@@ -5,18 +5,13 @@ require("qlean").setup({
 
 vim.go.hidden = true
 
--- Make a new hidden modified buffer
-vim.cmd.new()
-vim.fn.setline(1, { "foobar" })
-vim.cmd.wincmd("c")
+if pcall(vim.cmd.new) then
+  vim.fn.setline(1, { "foobar" })
+  vim.cmd.wincmd("c")
+end
 
--- Open a quickfix-window as a UI window (it'll not be kept)
 vim.cmd.copen()
-
--- Close last kept window
--- -> It may close other windows, hidden buffer will be found, Neovim stops quiting because it is not saved (E37)
 vim.cmd.wincmd("k")
-pcall(vim.cmd.quit)
-
+pcall(vim.api.nvim_cmd, { cmd = "quit" }, { output = true })
 vim.cmd.redraw()
 snap_done()
