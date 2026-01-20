@@ -24,9 +24,6 @@ jobs:
           install /tmp/nvim-snap /usr/local/bin/nvim-snap
       - name: Report snapshots
         run: |
-          export XDG_RUNTIME_DIR=/tmp/xdg-runtime
-          mkdir -p "$XDG_RUNTIME_DIR"
-          chmod 700 "$XDG_RUNTIME_DIR"
           nvim-snap report --root . --cases-dir snapcase --output diff --diff-format text --diff-always
       - name: Upload diffs
         if: always()
