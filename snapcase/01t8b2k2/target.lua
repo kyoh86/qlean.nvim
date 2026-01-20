@@ -21,6 +21,7 @@ vim.cmd.copen()
 -- - It closes other windows, hidden buffer is found, Neovim stops quitting because it is not saved (E37)
 vim.cmd.wincmd("k")
 
+log(".out/state.log", vim.fn.execute("verbose set confirm?"))
 log("state.log", "before quit")
 local ok, err = pcall(vim.cmd.quit)
 log("state.log", "quit ok=" .. tostring(ok) .. " err=" .. tostring(err))
