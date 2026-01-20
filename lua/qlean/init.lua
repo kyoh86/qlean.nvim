@@ -152,22 +152,13 @@ end
 local function close_windows(winIds)
   for _, winId in ipairs(winIds) do
     if vim.api.nvim_win_is_valid(winId) then
-      pcall(vim.api.nvim_win_call, winId, function()
-        vim.cmd("silent! noautocmd close")
-      end)
+      pcall(vim.api.nvim_win_close, winId, false)
     end
   end
 end
 
-local in_quit_pre = false
-
 local function on_quit_pre()
-  if in_quit_pre then
-    return
-  end
-  in_quit_pre = true
   close_windows(collect_cleanup_wins(ctx_cache()))
-  in_quit_pre = false
 end
 
 ---@param opts qlean.Config|nil
