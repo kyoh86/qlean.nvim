@@ -9,7 +9,9 @@ if pcall(vim.cmd.new) then
   vim.fn.setline(1, { "foobar" })
   vim.cmd.wincmd("c")
 end
+
 vim.cmd.copen()
 vim.cmd.wincmd("k")
+pcall(vim.api.nvim_cmd, { cmd = "quit" }, { output = true })
 vim.cmd.redraw()
 snap_done()
