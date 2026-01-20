@@ -8,8 +8,6 @@
   "wait": 500,
   "wait_done": true,
   "rpc_timeout": 30000,
-  "log_file": ".nvimlog",
-  "log_level": "debug",
   "data_home": ".nvim-data",
   "config_home": ".nvim-config",
   "title": "Qlean cleans quick-fix window but the hidden modified window is shown",
