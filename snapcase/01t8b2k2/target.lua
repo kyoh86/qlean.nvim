@@ -28,4 +28,4 @@ vim.cmd.wincmd("k")
 --     https://github.com/vim/vim/commit/cda7764d8e65325d4524e5d6c3174121eeb12cad
 pcall(vim.api.nvim_cmd, { cmd = "quit" }, { output = true })
 vim.cmd.redraw()
-snap_done()
+require("nvim_snap").done()
