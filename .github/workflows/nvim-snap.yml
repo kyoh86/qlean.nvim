@@ -17,14 +17,15 @@ jobs:
         run: nvim --version
       - name: Install nvim-snap
         run: |
-          curl -sSL https://github.com/kyoh86/nvim-snap/releases/latest/download/nvim-snap -o nvim-snap
-          chmod +x nvim-snap
+          gh release download -R kyoh86/nvim-snap -p "nvim-snap_*_linux_amd64.tar.gz" -O /tmp/nvim-snap.tar.gz
+          tar -xzf /tmp/nvim-snap.tar.gz -C /tmp
+          install /tmp/nvim-snap /usr/local/bin/nvim-snap
       - name: Run snapshots
         run: |
-          ./nvim-snap run --root . --cases-dir snapcase --format json
+          nvim-snap run --root . --cases-dir snapcase --format json
       - name: Compare snapshots
         run: |
-          ./nvim-snap compare --root . --cases-dir snapcase --format html --diff-always
+          nvim-snap compare --root . --cases-dir snapcase --format html --diff-always
       - name: Listup files
         if: always()
         run: find . -type f
