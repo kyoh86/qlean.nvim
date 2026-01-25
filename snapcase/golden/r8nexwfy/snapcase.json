@@ -1,11 +1,10 @@
 {
+  "$schema": "https://raw.githubusercontent.com/kyoh86/nvim-snap/main/snapcase.schema.json",
+  "version": 1,
   "config_home": ".nvim-config",
   "data_home": ".nvim-data",
-  "kind": "golden",
   "title": "Qlean doesn't closes quick-fix window when one editable-window is.",
   "rtp": [
     "${ROOT}"
-  ],
-  "version": 1
+  ]
 }
-

@@ -1,11 +1,10 @@
 {
+  "$schema": "https://raw.githubusercontent.com/kyoh86/nvim-snap/main/snapcase.schema.json",
+  "version": 1,
   "config_home": ".nvim-config",
   "data_home": ".nvim-data",
-  "kind": "golden",
   "title": "Qlean cleans quick-fix window but the hidden modified window is shown",
   "rtp": [
     "${ROOT}"
-  ],
-  "version": 1
+  ]
 }
-
